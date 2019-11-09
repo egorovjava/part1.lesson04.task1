@@ -77,4 +77,21 @@ public class MapTest {
         HashMap<String, Object> map = getTestMap();
         App.cleanup(map, fieldsToCleanup, fieldsToOutput);
     }
+
+    @Test
+    public void newMapTest() {
+        NewMap newMap = new NewMap();
+        NewMap map = new NewMap();
+        map.put("intKey", 100);
+        map.put("boolKey", true);
+        map.put("charKey", 'x');
+        map.put("strKey", "Test string");
+
+        HashSet<String> fieldsToCleanup = new HashSet<>(map.keySet());
+        HashSet<String> fieldsToOutput = new HashSet<>();
+
+        App.cleanup(map, fieldsToCleanup, fieldsToOutput);
+
+        assertEquals(map.size(), 0);
+    }
 }

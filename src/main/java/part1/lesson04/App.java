@@ -9,75 +9,40 @@ import java.util.*;
 
 /**
  * Hello world!
- *
  */
-public class App 
-{
-    public static void main( String[] args )
-    {
-        HashSet<String> fieldsToCleanup = new HashSet<>();
-        HashSet<String> fieldsToOutput = new HashSet<>();
-        fieldsToOutput.add("intField");
-        fieldsToOutput.add("boolField");
-        fieldsToOutput.add("charField");
-        fieldsToOutput.add("strField");
-        TestClass testClass = new TestClass();
 
-        cleanup(testClass, fieldsToCleanup, fieldsToOutput);
-        fieldsToCleanup.add("intField");
-        fieldsToCleanup.add("boolField");
-        fieldsToCleanup.add("charField");
-        fieldsToCleanup.add("strField");
-        cleanup(testClass, fieldsToCleanup, fieldsToOutput);
+public class App {
 
-        HashMap<String, String> map = new HashMap<>();
-        map.put("1", "One");
-        map.put("2", "Two");
-        map.put("3", "Three");
-        map.put("4", "Four");
+    public static void main(String[] args) {
 
-        fieldsToCleanup.clear();
-        fieldsToOutput.clear();
-
-        fieldsToOutput.add("1");
-        fieldsToOutput.add("2");
-        fieldsToOutput.add("3");
-        fieldsToOutput.add("4");
-
-        cleanup(map, fieldsToCleanup, fieldsToOutput);
-
-        fieldsToCleanup.add("1");
-        fieldsToCleanup.add("2");
-        fieldsToCleanup.add("3");
-        fieldsToCleanup.add("4");
-
-        //cleanup(map, fieldsToCleanup, fieldsToOutput);
     }
 
     static void cleanup(Object object, Set<String> fieldsToCleanup, Set<String> fieldsToOutput) {
 
-        if(object == null) {
+        if (object == null) {
             return;
         }
 
-        if(fieldsToCleanup == null) {
+        if (fieldsToCleanup == null) {
             fieldsToCleanup = new HashSet<>();
         }
 
-        if(fieldsToOutput == null) {
+        if (fieldsToOutput == null) {
             fieldsToOutput = new HashSet<>();
         }
 
         Class<?> cls = object.getClass();
 
-        Class[] interfaces = cls.getInterfaces();
         boolean isImplementsMap = false;
-
-        for(Class iface : interfaces) {
-            if(iface.equals(Map.class)) {
-                isImplementsMap = true;
-                break;
+        Class temp = cls;
+        while (temp != Object.class) {
+            Class[] interfaces = temp.getInterfaces();
+            for (Class iface : interfaces) {
+                if (iface.equals(Map.class)) {
+                    isImplementsMap = true;
+                }
             }
+            temp = temp.getSuperclass();
         }
 
         if (isImplementsMap) {
@@ -98,17 +63,16 @@ public class App
                     }
                 }
                 Method getMeth = cls.getMethod("get", Object.class);
-                for(String field : fieldsToOutput) {
+                for (String field : fieldsToOutput) {
                     try {
                         boolean isContains = (boolean) containsKeyMeth.invoke(object, field);
-                        if(isContains) {
+                        if (isContains) {
                             Object value = getMeth.invoke(object, field);
                             System.out.println(value);
                         } else {
                             throw new IllegalArgumentException("Key " + field + " not found.");
                         }
-                    }
-                    catch(IllegalAccessException | InvocationTargetException e) {
+                    } catch (IllegalAccessException | InvocationTargetException e) {
                         System.out.println(e);
                     }
                 }
@@ -121,7 +85,6 @@ public class App
                     Field field;
                     try {
                         field = cls.getField(fieldName);
-                        //field = cls.getDeclaredField(fieldName);
                     } catch (NoSuchFieldException e) {
                         throw new IllegalArgumentException("Field " + fieldName + " not found.");
                     }
@@ -129,18 +92,22 @@ public class App
                     Class fieldType = field.getType();
                     Object defValue = null;
                     if (fieldType.isPrimitive()) {
-                        if (fieldType.equals(boolean.class)) {
-                            defValue = false;
-                        } else if (fieldType.equals(char.class)) {
-                            defValue = (char)0;
-                        } else {
-                            defValue = 0;
+                        switch(fieldType.getName()) {
+                            case "boolean":
+                                defValue = false;
+                                break;
+                            case "char":
+                                defValue = (char)0;
+                                break;
+                            default:
+                                defValue = 0;
+                                break;
                         }
                     }
                     field.set(object, defValue);
                 }
 
-                for(String fieldName : fieldsToOutput) {
+                for (String fieldName : fieldsToOutput) {
                     Field field;
                     try {
                         field = cls.getField(fieldName);
@@ -156,12 +123,4 @@ public class App
             }
         }
     }
-}
-
-class TestClass {
-
-    public int intField = 100;
-    public boolean boolField = true;
-    public char charField = 'x';
-    public String strField = "Test string";
 }
