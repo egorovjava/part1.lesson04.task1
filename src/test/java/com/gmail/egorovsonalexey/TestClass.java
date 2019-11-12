@@ -1,4 +1,4 @@
-package part1.lesson04;
+package com.gmail.egorovsonalexey;
 
 import java.util.HashMap;
 import java.util.Map;

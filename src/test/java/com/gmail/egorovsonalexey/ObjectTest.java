@@ -1,4 +1,4 @@
-package part1.lesson04;
+package com.gmail.egorovsonalexey;
 
 import org.junit.Test;
 
